@@ -60,13 +60,13 @@ func (p *Parser) Symbol() string {
 }
 
 func (p *Parser) Dest() string {
-	d := p.currentCommand[11:14]
+	return p.currentCommand[10:13]
 }
 
 func (p *Parser) Comp() string {
-
+	return p.currentCommand[3:10]
 }
 
 func (p *Parser) Jump() string {
-
+	return p.currentCommand[13:]
 }
