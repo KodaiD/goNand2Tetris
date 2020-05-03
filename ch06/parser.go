@@ -36,12 +36,20 @@ func (p *Parser) HasMoreCommands() bool {
 
 func (p *Parser) Advance() {
 	text := p.scanner.Text()
-	text = text[:strings.Index(text, "//")]
+	if len(text) == 0 {
+		return
+	}
+	commentIndex :=strings.Index(text, "//")
+	if commentIndex != -1 {
+		text = text[:commentIndex]
+	}
 	p.currentCommand = strings.TrimSpace(text)
 }
 
 func (p *Parser) CommandType() int {
-	if p.currentCommand[0] == '@' {
+	if len(p.currentCommand) == 0 {
+		return 0
+	}else if p.currentCommand[0] == '@' {
 		return CommandA
 	} else if p.currentCommand[0] == '(' {
 		return CommandL
@@ -60,13 +68,27 @@ func (p *Parser) Symbol() string {
 }
 
 func (p *Parser) Dest() string {
-	return p.currentCommand[10:13]
+	return helper(p.currentCommand)[0]
 }
 
 func (p *Parser) Comp() string {
-	return p.currentCommand[3:10]
+	return helper(p.currentCommand)[1]
 }
 
 func (p *Parser) Jump() string {
-	return p.currentCommand[13:]
+	return helper(p.currentCommand)[2]
+}
+
+// helper returns [dest, comp, jump]
+// dest=comp;jump
+func helper(s string) []string {
+	indexOfSemicolon := strings.Index(s, ";")
+	indexOfEquation := strings.Index(s, "=")
+	if indexOfSemicolon == -1 {
+		return []string{s[:indexOfEquation], s[indexOfEquation+1:], ""}
+	} else if indexOfEquation == -1 {
+		return []string{"", s[:indexOfSemicolon], s[indexOfSemicolon+1:]}
+	} else {
+		return []string{s[:indexOfEquation], s[indexOfEquation+1:indexOfSemicolon], s[indexOfSemicolon+1:]}
+	}
 }
